@@ -1,0 +1,188 @@
+---
+title: "A Comprehensive Analysis of the Trends and Distribution of Stillbirth Licenses in Civic Centres (2011–2024)"
+author:
+  - Zeyi Cai
+thanks: "A GitHub Repository containing all data, R code, and other files used in this investigation is located here: https://github.com/ZeyiCai/Stillbirth-Licenses-Statistcs"
+date: 09-22-2024
+date-format: long
+abstract: "The statistical study examines the stillbirth licences issued by Toronto Civic Centres from 2011 and 2024, based on the trend, distribution, and comparability of the four civic centres. The pattern of stillbirth licenses and the notable variations between time changes and civic centres are discoverd by the analysis's use of descriptive statistics and visualization. According to the survey results, specific centres continue to abnormally issue more licenses during certain times. By understanding these trends, future health care policies and support services can be provided to families affected by stillbirth."
+format: pdf
+number-sections: true
+# The toc parameter used to create a table of contents was obtained from
+# Quarto documentation:
+# https://quarto.org/docs/reference/formats/pdf.html
+toc: true
+bibliography: references.bib 
+---
+
+```{r}
+#| echo: false
+#| warning: false
+#### Preamble ####
+
+# Purpose: To analyze the distribution and trends of stillbirth licenses issued across different civic centers in Toronto from 2011 to 2024 by investigating the statistics patterns in the issuance of stillbirth licenses.
+# Author: Zeyi Cai
+# Date: September 22, 2024
+# Contact: zcloris.cai@mail.utoronto.ca
+# Pre-requisites: Run the files "01-download_data.R" and "02-data_cleaning.R".
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#### Loading Packages ####
+library(tidyverse)
+library(opendatatoronto)
+```
+# Introduction {#sec-introduction}
+  Stillbirth is not only a tragedy for individual families, but also a significant public health issue that impacts families globally. The negative influence is not only reflected in the blow to the family, but also in some shortcomings in the social health system and medical services. The measure of issuing a stillbirth license provides key data for the government to get to know the prevalence of stillbirth in different regions. Through these data, researchers can understand the frequency and number of stillbirths and their changes over time and region. 
+  \ The number of stillbirth licenses that Toronto Civic Centres have issued in the 13 years between 2011 and 2024 will be investigated in this study. Our primary objectives in examining this data are to find long-term patterns and seasonal variations in stillbirth licenses, specific times and areas where stillbirths are more common, so that te government can identify civic centres that might benefit from further assistance and intervention. In order to comprehend the imbalance in geographical distribution, a comparison of the variations in the quantity of stillbirth licences issued in various civic centres was made. Ultimately, the study examines how medical resources are allocated or other environmental factors that have an impact on the occurrence of stillbirth. 
+  \ In the study, it is found that the number of licenses issued in different months varies greatly in North York while the data is more concentrated in a fixed range stably in Scarborough and Downtown of Toronto. The distribution of stillbirths in the whole city is uneven, and the number of stillbirths in the relatively remote and low-population area is much higher than in other areas. In general, the issuance of stillbirth permits is low and relatively stable during most periods of time. However, in some months, the issuance of licenses suddenly increased, showing obvious outliers. These surges may be caused by external emergencies of force majeure, such as the public health crisis caused by the epidemic.
+  \\ The findings of this study will help policymakers to decide what procedures they can take to improve resource allocation, and to offer focused aids and care to stillbirth families.
+
+# Data {#sec-data}
+
+## Overview {#sec-data-overview}
+Information regarding the registration of stillbirths recorded by Registry Services at the Etobicoke Civic Centre is included in this dataset. Registration of stillbirths is entered into the Registry Services Tracking System (RSTS), from which aggregate statistical information is generated to create the dataset. The dataset resides in an Oracle database in the City's environment[@citeopendatatoronto].
+
+The dataset used in this analysis contains three primary variables:
+Civic Centre(named “CIVIC_CENTRE” in the original dataset): Identifies the code of civic centre where the stillbirth licences are issued.
+Stillbirth Licenses(named “STILLBIRTH_LICENSES” in the original dataset): The number of licenses issued in a given time period (monthly).
+Time Period(named “TIME_PERIOD” in the original dataset): Month death registered, ranging from January 2011 to July 2024[@citeopendatatoronto].
+
+There are four civic centers in the dataset, each with distinct patterns in the issuance of stillbirth licenses. The data spans over 143 months and reflects variability in stillbirth license distribution, both over time and across different civic centers[@citeopendatatoronto].
+
+Using the R programming language [@citeR], the `janitor` [@citejanitor] and `tidyverse` [@citetidyverse] packages were used to simulate the dataset and generate tests for it. The `opendatatoronto` [@citeopendatatoronto] and `tidyverse` [@citetidyverse] packages were then applied in order to download the raw Toronto Public Health dataset. Next, the `tidyverse` package [@citetidyverse] was used to clean the raw dataset and test the cleaned dataset[@rochwerg2024long].
+
+## Results {#sec-data-results}
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+#### Loading the Cleaned Dataset ####
+stillbirth_regist_packages <- search_packages("Stillbirth Registration Statistics")
+stillbirth_regist_packages
+# Retrieve a list of all resources (datasets) available within the found package
+stillbirth_regist_resources <- 
+  stillbirth_regist_packages %>%
+  list_package_resources()
+# Display the list of resources available in the "Stillbirth Registration Statistics" package
+stillbirth_regist_resources
+stillbirth_regist_statistics <- 
+  stillbirth_regist_resources[2, ] %>%
+  get_resource()
+
+data = stillbirth_regist_statistics
+```
+
+After loading the dataset using the R programming language [@citeR] and the `opendatatoronto` package [@citeopendatatoronto], the `tidyverse` [@citetidyverse] package was used to generate graphs. In doing so, R code was adapted from @tellingstorieswithdata.[@rochwerg2024long].
+
+\newpage
+
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-distri-by-civic-type
+#| fig-cap: "Distribution of Stillbirth Licenses by Civic Centre"
+
+#### First Graph ####
+
+# This code is based on knowledge from Alexander (2023).
+# Box Plot: Distribution of Stillbirth Licenses by Civic Centre
+ggplot(data, aes(x = CIVIC_CENTRE, y = STILLBIRTH_LICENSES, fill = CIVIC_CENTRE)) +
+  geom_boxplot() +
+  labs(title = 
+         "Distribution of Stillbirth Licenses by Civic Centre", 
+       x = "Civic Centre", y = "Stillbirth Licenses") +
+  theme_minimal()
+```
+
+@fig-distri-by-civic-type illustrates that the distribution of stillbirth licenses for each civic center. It shows the median, interquartile range, and potential outliers. Some civic centers have wider interquartile ranges, indicating more variability in their issuance patterns, while others have more consistent, centralized distributions. 
+
+  In the civic centre of North York and Etibicoke, the distribution of the distribution of stillbirth licenses is relatively large, which means that the data will also fluctuate more around these midpoints, indicating that the issuance data of these two centres is more volatile, and it can also be regarded as licenses between different times. The number of distributions varies greatly, and the distribution is relatively unstable. For example, the amount distributed may be high in some specific months, while the quantity may be low in other months.
+
+  In the civic centre of Downtown Toronto and Scarborough, the data distribution is more concentrated and the interquartile range is smaller. This shows that the number of stillbirth licenses issued by civic centres in these two regions is relatively stable, and the issuance mode is more stable. Most of the number is concentrated within a fixed range with slight fluctuations.
+
+\newpage
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-licenses-by-civic-type
+#| fig-cap: "Total Stillbirth Licenses by Civic Centre"
+
+#### Second Graph ####
+
+# This code is based on knowledge from Alexander (2023).
+
+# Bar Plot: Total Stillbirth Licenses by Civic Centre
+ggplot(data, aes(x = CIVIC_CENTRE, y = STILLBIRTH_LICENSES, fill = CIVIC_CENTRE)) +
+  stat_summary(fun = sum, geom = "bar") +
+  labs(title = "Total Stillbirth Licenses by Civic Centre", 
+       x = "Civic Centre", y = "Total Stillbirth Licenses") +
+  theme_minimal()
+
+```
+
+@fig-licenses-by-civic-type shows that the total number of stillbirth licenses that each civic centre has issued is displayed in a bar plot. The figure clearly and bluntly shows the total number of stillbirth licenses issued by each civic centre in different regions. According to statistics, most of the licenses are issued by Etobicoke Civic Centre, and North York Civic Centre ranks second in the data of issuing the licenses, which has a gap in the total number from the former. The result indicates that there is a significantly higher stillbirth rate, especially in Etibicoke and North York while the stillbirth rate in Downtown Toronto and Scarborough is comparatively low. Overall, the number of stillbirths in the Greater Toronto area is very unevenly distributed.
+
+
+\newpage
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-distri_by_time_type
+#| fig-cap: "Distribution of Stillbirth Licenses Over Time"
+
+#### Third Graph ####
+# Scatter Plot: Distribution of Stillbirth Licenses Over Time
+ggplot(data, aes(x = TIME_PERIOD, y = STILLBIRTH_LICENSES, color = CIVIC_CENTRE)) +
+  geom_point() +
+  labs(title = "Scatter Plot of Stillbirth Licenses Over Time", 
+       x = "Time Period", y = "Stillbirth Licenses") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+@fig-distri_by_time_type illustrates the correlation between the number of stillbirth licenses and time, and studies the trend of the issuance of stillbirth licenses over time. The figure shows that most of the data points are concentrated around lower values, indicating that the issuance of stillbirth licenses is low and relatively stable during most periods of time. However, in some given months, the number of licenses granted is disproportionately large, showing obvious outliers. These anomalies may be related to external factors of force majeure, such as changes in public health policies or public health emergencies. If the government changes the standards and processes for recording stillbirths at some point, it may lead to a sudden increase in the number of licenses in a certain month.
+
+
+# Discussion {#sec-discussion}
+
+In @sec-data-results, the conclusion is that there are significant differences in the number of stillbirth licenses issued by different civic centres. The stillbirth rate may be higher in relatively less dense and more remote areas. This difference may be related to access to medical resources. In areas where medical services are relatively insufficient, the incidence of stillbirth will be high, and secondly, it may be related to the public health crisis and major policy changes caused by the epidemic and external environmental factors. These factors may have a negative impact on the health of pregnant women at certain times, leading to an increase in the stillbirth rate.
+
+Due to the different convenience of access to medical care in each region, Etobicoke, as a relatively remote area, has few conditions for medical institutions to care for. When seasonal influenza or other physical factors affect the health of pregnant women, especially during certain peak times, it will be more difficult to obtain medical care in time. In order to cope with these fluctuations, medical interventions for specific periods become particularly important.
+
+The number of stillbirth licenses in civic centres in the region is disproportionately high, indicating that the region may need more medical resources and support for bereaved families, so the government needs to increase investment.
+
+In terms of public health policy, the widespread prenatal serious congenital diagnosis and abortion abnormalities have led to an increase in the stillbirth rate in Canada, so this also explains why Canada should be called on to continuously modify the definition of stillbirth based on the inadequacy and give a more appropriate and humanitarian process registration for stillbirth licenses issuing process[@joseph2021stillbirth].As time goes by, the registration becomes more and more perfect, younger and younger children are probably involved in the registration network, and scholars and experts must explore from a statistical point of view whether it is reasonable[@dudfield1914stillbirths].
+
+However, surprisingly, there was no abnormal change in the stillbirth rate in Ontario, Canada during the COVID-19 pandemic. The growth rate of stillbirths during this period was within an acceptable range[@shah2021preterm], which shows that the growth of stillbirth licenses during the epidemic is more likely due to the lack and shortage of medical resources.
+
+In general, the results of the study help policymakers reduce the incidence of stillbirths and provide support to families in need through more reasonable resource allocation and targeted interventions. Based on these analyses, decision-makers can further investigate the specific causes of fluctuations in stillbirth rates, especially in areas with limited medical resources.
+
+\newpage
+
+\appendix
+
+# Appendix {#sec-appendix}
+
+## Dataset and Graph Sketches {#sec-appendix-sketches}
+
+Sketches depicting both the desired dataset and the graphs generated in this analysis are available in the GitHub Repository.
+
+## Data Cleaning {#sec-appendix-cleaning}
+
+The data cleaning process involved filtering out some of the columns from the raw dataset and renaming some of the data entries for clarity and simplicity.
+
+## Attribution Statement {#sec-appendix-attribution}
+Some of the R code used to create this work was generated by ChatGPT.
+
+\newpage
+
+# References {#sec-references}
