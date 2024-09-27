@@ -19,5 +19,5 @@ The repo is structured as:
 
 ## Statement on LLM usage
 
-Some of the code and analysis were written with the help of ChatGPT. And the entire chat history is available in other/llm/usage.txt.
+Some of the code and analysis were written with the help of ChatGPT and from @tellingstorieswithdata. And the entire chat history is available in other/llm/usage.txt.
 
